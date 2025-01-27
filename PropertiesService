@@ -1,0 +1,50 @@
+PropertiesService.getScriptProperties().setProperty('CHANNEL_TOKEN', 'pKHdfsCQj3VZKGdklq5Bqe6+hBFKTrN+hKhhUO6NkakBBEOtGMoTINddnwrHDfyTg/bMLohGqRW8/FXx/6oqKe5Pcq0y58fEBrBZQ+XbLD+Uc8SIt2O8NQXNWuz6i+SeSruD+eksffmXYzDYzcfJegdB04t89/1O/w1cDnyilFU=');
+PropertiesService.getScriptProperties().setProperty('GDRIVE_ROOT_FOLDER_ID', '1D9_WVyy2Qv9zsKwfK-j057mm1jYS95GN');
+
+// ==================================================
+// ฟังก์ชันจัดการสถานะการทำงาน
+// ==================================================
+
+// เปิดการทำงาน
+function enableBot(userId) {
+  var properties = PropertiesService.getUserProperties();
+  properties.setProperty(userId + "_enabled", "true");
+  properties.deleteProperty(userId + "_disabled_until"); // ลบเวลาหยุดทำงานถ้ามี
+  return '✅ เปิดการทำงานเรียบร้อยแล้ว';
+}
+
+// ปิดการทำงาน
+function disableBot(userId) {
+  var properties = PropertiesService.getUserProperties();
+  properties.setProperty(userId + "_enabled", "false");
+  return '✅ ปิดการทำงานเรียบร้อยแล้ว';
+}
+
+// หยุดการทำงานชั่วคราว
+function pauseBot(userId, hours) {
+  var properties = PropertiesService.getUserProperties();
+  var now = new Date();
+  var disabledUntil = new Date(now.getTime() + hours * 60 * 60 * 1000); // คำนวณเวลาหยุดทำงาน
+  properties.setProperty(userId + "_disabled_until", disabledUntil.toISOString());
+  return '✅ หยุดการทำงานเป็นเวลา ' + hours + ' ชั่วโมง เรียบร้อยแล้ว';
+}
+
+// ตรวจสอบสถานะการทำงาน
+function isBotEnabled(userId) {
+  var properties = PropertiesService.getUserProperties();
+  var enabled = properties.getProperty(userId + "_enabled");
+  var disabledUntil = properties.getProperty(userId + "_disabled_until");
+
+  if (disabledUntil) {
+    var now = new Date();
+    var disabledUntilDate = new Date(disabledUntil);
+
+    if (now < disabledUntilDate) {
+      return false; // ยังอยู่ในช่วงหยุดทำงาน
+    } else {
+      properties.deleteProperty(userId + "_disabled_until"); // ลบเวลาหยุดทำงานถ้าหมดเวลา
+    }
+  }
+
+  return enabled === "true"; // คืนค่า true ถ้าเปิดการทำงาน
+}
