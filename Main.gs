@@ -1,9 +1,8 @@
 // ==================================================
 // ค่าคงที่และค่าตั้งต้น
 // ==================================================
-var CHANNEL_TOKEN = "XXXXX";
-var GDRIVE_ROOT_FOLDER_ID = "XXXXXX"; // ใส่ ID Folder หลัก
-
+var CHANNEL_TOKEN = "XXXXXXXXXXXXXXXXX"; // ใส่ CHANNEL LINE TOKEN หลัก
+var GDRIVE_ROOT_FOLDER_ID = "XXXXXXXXXXXXXX"; // ใส่ ID Folder หลัก
 var MAX_FILE_SIZE = 100 * 1024 * 1024; // จำกัดขนาดไฟล์สูงสุด 100 MB
 var FILE_RETENTION_DAYS = 60; // จำนวนวันที่เก็บไฟล์ (ถ้าเกินจะลบไฟล์เก่า)
 
@@ -112,17 +111,14 @@ function getFileCategory(fileType) {
 
 // แสดงคำสั่งช่วยเหลือ
 function showHelp() {
-  return '📝 คำสั่งทั้งหมด:\n\n' +
+  var helpMessage = '📝 คำสั่งทั้งหมด:\n\n' +
     '- 🛠️ SAO ตั้งโควต้า [ขนาด MB]: ตั้งค่าขนาดโควต้าพื้นที่เก็บข้อมูล\n' +
     '- 🔍 SAO ตรวจสอบโควต้า: ตรวจสอบโควต้าพื้นที่ที่ใช้ไปและที่เหลือ\n' +
     '- 📂 SAO เก็บไฟล์ที่ไหน: แสดงลิงก์โฟลเดอร์ที่เก็บไฟล์\n' +
     '- 💾 SAO สำรองข้อมูล: สร้างสำรองข้อมูลไฟล์ทั้งหมด\n' +
     '- 🔎 SAO ค้นหาไฟล์ [ชื่อไฟล์]: ค้นหาไฟล์ตามชื่อ\n' +
     '- 📊 SAO รายงานการใช้พื้นที่: สรุปการใช้พื้นที่\n' +
-    '- ❓ SAO ช่วยเหลือ: แสดงคำสั่งทั้งหมด\n' +
-    '- 🚪 SAO เปิดการทำงาน: เปิดการทำงานของระบบ\n' +
-    '- 🚪 SAO ปิดการทำงาน: ปิดการทำงานของระบบ\n' +
-    '- ⏸️ SAO หยุดการทำงาน [ชั่วโมง]: หยุดการทำงานชั่วคราว\n\n' +
+    '- ❓ SAO ช่วยเหลือ: แสดงคำสั่งทั้งหมด\n\n' +
     '📂 คำสั่งสำหรับอัปโหลดไฟล์:\n' +
     '- ส่งไฟล์ภาพ, วิดีโอ, หรือเอกสารมาที่แชทนี้ เพื่ออัปโหลดไปยัง Google Drive';
 
@@ -242,59 +238,6 @@ function checkQuotaBeforeUpload(userId, folder, fileSize) {
 }
 
 // ==================================================
-// ฟังก์ชันจัดการสถานะการทำงาน
-// ==================================================
-
-// เปิดการทำงาน
-function enableBot() {
-  var properties = PropertiesService.getScriptProperties();
-  properties.setProperty("bot_status", "enabled");
-  properties.deleteProperty("bot_pause_until"); // ลบเวลาหยุดการทำงาน (ถ้ามี)
-  return '✅ เปิดการทำงานเรียบร้อยแล้ว';
-}
-
-// ปิดการทำงาน
-function disableBot() {
-  var properties = PropertiesService.getScriptProperties();
-  properties.setProperty("bot_status", "disabled");
-  properties.deleteProperty("bot_pause_until"); // ลบเวลาหยุดการทำงาน (ถ้ามี)
-  return '❌ ปิดการทำงานเรียบร้อยแล้ว';
-}
-
-// หยุดการทำงานชั่วคราว
-function pauseBot(hours) {
-  var properties = PropertiesService.getScriptProperties();
-  var now = new Date();
-  var pauseUntil = new Date(now.getTime() + hours * 60 * 60 * 1000); // เพิ่มเวลาตามจำนวนชั่วโมง
-  properties.setProperty("bot_status", "paused");
-  properties.setProperty("bot_pause_until", pauseUntil.toISOString());
-  return '⏸️ หยุดการทำงานชั่วคราวเป็นเวลา ' + hours + ' ชั่วโมง';
-}
-
-// ตรวจสอบสถานะการทำงาน
-function checkBotStatus() {
-  var properties = PropertiesService.getScriptProperties();
-  var status = properties.getProperty("bot_status") || "enabled"; // ค่าเริ่มต้นคือ "enabled"
-  var pauseUntil = properties.getProperty("bot_pause_until");
-
-  if (status === "paused" && pauseUntil) {
-    var now = new Date();
-    var pauseUntilDate = new Date(pauseUntil);
-
-    if (now >= pauseUntilDate) {
-      // ถ้าเวลาหยุดการทำงานสิ้นสุดแล้ว ให้เปิดการทำงานใหม่
-      properties.setProperty("bot_status", "enabled");
-      properties.deleteProperty("bot_pause_until");
-      return "enabled";
-    } else {
-      return "paused";
-    }
-  }
-
-  return status;
-}
-
-// ==================================================
 // ฟังก์ชันจัดการข้อความจาก LINE
 // ==================================================
 
@@ -393,7 +336,7 @@ function handleMediaMessage(event, userFolder) {
     var fileUrl = file.getUrl();
     var folderUrl = categoryFolder.getUrl();
 
-    // return '✅ ไฟล์ของคุณถูกเก็บเรียบร้อยแล้ว 📂\n\nประเภทไฟล์: ' + fileCategory + '\nPath: ' + categoryFolder.getName() + '/' + uniqueFileName + '\nURL: ' + fileUrl;
+    //return '✅ ไฟล์ของคุณถูกเก็บเรียบร้อยแล้ว 📂\n\nประเภทไฟล์: ' + fileCategory + '\nPath: ' + categoryFolder.getName() + '/' + uniqueFileName + '\nURL: ' + fileUrl;
   } catch (error) {
     Logger.log("Error uploading to Google Drive: " + error.message);
     return '⚠️ เกิดข้อผิดพลาดในการอัปโหลดไฟล์';
@@ -550,6 +493,43 @@ function createSearchResultMessage(fileList, fileName) {
 }
 
 // ==================================================
+// ฟังก์ชันเปิด/ปิดการทำงาน
+// ==================================================
+
+// ตั้งค่าสถานะการทำงาน
+function setBotStatus(status) {
+  var properties = PropertiesService.getScriptProperties();
+  properties.setProperty("BOT_STATUS", status);
+}
+
+// ตั้งค่าเวลาหยุดการทำงาน
+function setBotPause(hours) {
+  var properties = PropertiesService.getScriptProperties();
+  var now = new Date();
+  var pauseUntil = new Date(now.getTime() + hours * 60 * 60 * 1000);
+  properties.setProperty("PAUSE_UNTIL", pauseUntil.toISOString());
+}
+
+// ตรวจสอบสถานะการทำงาน
+function checkBotStatus() {
+  var properties = PropertiesService.getScriptProperties();
+  var status = properties.getProperty("BOT_STATUS");
+  var pauseUntil = properties.getProperty("PAUSE_UNTIL");
+
+  if (pauseUntil) {
+    var now = new Date();
+    var pauseTime = new Date(pauseUntil);
+    if (now < pauseTime) {
+      return "PAUSED";
+    } else {
+      properties.deleteProperty("PAUSE_UNTIL");
+    }
+  }
+
+  return status || "ACTIVE"; // ค่าเริ่มต้นคือ ACTIVE
+}
+
+// ==================================================
 // ฟังก์ชันหลักที่รับอีเวนต์จาก LINE
 // ==================================================
 
@@ -564,14 +544,14 @@ function doPost(e) {
 
     // ตรวจสอบสถานะการทำงาน
     var botStatus = checkBotStatus();
-    if (botStatus === "disabled") {
-      return; // ไม่ตอบสนองคำสั่งใดๆ
-    } else if (botStatus === "paused") {
+    if (botStatus === "PAUSED") {
       replyMsg(replyToken, [
-        {
-          type: 'text',
-          text: '⏸️ โปรแกรมหยุดการทำงานชั่วคราว กรุณาลองใหม่ในภายหลัง'
-        }
+        { type: 'text', text: '⚠️ บอทกำลังหยุดการทำงานชั่วคราว' }
+      ]);
+      return;
+    } else if (botStatus === "INACTIVE") {
+      replyMsg(replyToken, [
+        { type: 'text', text: '⚠️ บอทปิดการทำงานอยู่' }
       ]);
       return;
     }
@@ -585,100 +565,69 @@ function doPost(e) {
       var userFolder = getOrCreateGroupFolder(groupId);
 
       if (event.message.text) {
-        if (event.message.text.includes("SAO เปิดการทำงาน")) {
-          var result = enableBot();
+        var text = event.message.text.trim();
+
+        if (text === "SAO เปิดการทำงาน") {
+          setBotStatus("ACTIVE");
           replyMessage = [
-            {
-              type: 'text',
-              text: result
-            }
+            { type: 'text', text: '✅ เปิดการทำงานเรียบร้อยแล้ว' }
           ];
-        } else if (event.message.text.includes("SAO ปิดการทำงาน")) {
-          var result = disableBot();
+        } else if (text === "SAO ปิดการทำงาน") {
+          setBotStatus("INACTIVE");
           replyMessage = [
-            {
-              type: 'text',
-              text: result
-            }
+            { type: 'text', text: '✅ ปิดการทำงานเรียบร้อยแล้ว' }
           ];
-        } else if (event.message.text.includes("SAO หยุดการทำงาน")) {
+        } else if (text.startsWith("SAO หยุดการทำงาน")) {
           var hours = 1; // ค่าเริ่มต้นคือ 1 ชั่วโมง
-          var text = event.message.text.split("SAO หยุดการทำงาน")[1].trim();
-          if (text) {
-            var parsedHours = parseInt(text);
-            if (!isNaN(parsedHours) && parsedHours > 0) {
-              hours = parsedHours;
-            }
+          var parts = text.split(" ");
+          if (parts.length > 2 && !isNaN(parts[2])) {
+            hours = parseInt(parts[2]);
           }
-          var result = pauseBot(hours);
+          setBotPause(hours);
           replyMessage = [
-            {
-              type: 'text',
-              text: result
-            }
+            { type: 'text', text: '✅ หยุดการทำงานชั่วคราวเป็นเวลา ' + hours + ' ชั่วโมง' }
           ];
-        } else if (event.message.text.includes("SAO ตั้งโควต้า")) {
+        } else if (text.includes("SAO ตั้งโควต้า")) {
           // ดึงขนาดโควต้าจากข้อความ
-          var quotaMB = parseInt(event.message.text.split("SAO ตั้งโควต้า")[1].trim());
+          var quotaMB = parseInt(text.split("SAO ตั้งโควต้า")[1].trim());
           if (isNaN(quotaMB) || quotaMB <= 0) {
             replyMessage = [
-              {
-                type: 'text',
-                text: '⚠️ กรุณาระบุขนาดโควต้าเป็นตัวเลขที่ถูกต้อง (หน่วย MB)'
-              }
+              { type: 'text', text: '⚠️ กรุณาระบุขนาดโควต้าเป็นตัวเลขที่ถูกต้อง (หน่วย MB)' }
             ];
           } else {
             var result = setQuota(userId, quotaMB);
             replyMessage = [
-              {
-                type: 'text',
-                text: result
-              }
+              { type: 'text', text: result }
             ];
           }
-        } else if (event.message.text.includes("SAO ตรวจสอบโควต้า")) {
+        } else if (text.includes("SAO ตรวจสอบโควต้า")) {
           var result = checkQuota(userId, userFolder);
           replyMessage = [
-            {
-              type: 'text',
-              text: result
-            }
+            { type: 'text', text: result }
           ];
-        } else if (event.message.text.includes("SAO เก็บไฟล์ที่ไหน")) {
+        } else if (text.includes("SAO เก็บไฟล์ที่ไหน")) {
           replyMessage = [
-            {
-              type: 'text',
-              text: '📂 ไฟล์ของคุณถูกเก็บไว้ที่ URL: ' + userFolder.getUrl()
-            }
+            { type: 'text', text: '📂 ไฟล์ของคุณถูกเก็บไว้ที่ URL: ' + userFolder.getUrl() }
           ];
-        } else if (event.message.text.includes("SAO ช่วยเหลือ")) {
+        } else if (text.includes("SAO ช่วยเหลือ")) {
           var helpMessage = showHelp();
           replyMessage = [
-            {
-              type: 'text',
-              text: helpMessage
-            }
+            { type: 'text', text: helpMessage }
           ];
-        } else if (event.message.text.includes("SAO สรุปข้อมูลรายสัปดาห์")) {
+        } else if (text.includes("SAO สรุปข้อมูลรายสัปดาห์")) {
           var fileList = listFilesInPeriod(userFolder, "week");
           var message = createFileListMessage(fileList, "week");
           replyMessage = [
-            {
-              type: 'text',
-              text: message
-            }
+            { type: 'text', text: message }
           ];
-        } else if (event.message.text.includes("SAO สรุปข้อมูลรายเดือน")) {
+        } else if (text.includes("SAO สรุปข้อมูลรายเดือน")) {
           var fileList = listFilesInPeriod(userFolder, "month");
           var message = createFileListMessage(fileList, "month");
           replyMessage = [
-            {
-              type: 'text',
-              text: message
-            }
+            { type: 'text', text: message }
           ];
-        } else if (event.message.text.includes("SAO สรุปข้อมูลรายวัน")) {
-          var targetDate = extractDateFromMessage(event.message.text);
+        } else if (text.includes("SAO สรุปข้อมูลรายวัน")) {
+          var targetDate = extractDateFromMessage(text);
           if (!targetDate) {
             targetDate = Utilities.formatDate(new Date(), "Asia/Bangkok", "dd/MM/yyyy");
           } else {
@@ -688,20 +637,14 @@ function doPost(e) {
           var fileList = listFilesOnDate(userFolder, targetDate);
           var message = createFileListMessageForDate(fileList, targetDate);
           replyMessage = [
-            {
-              type: 'text',
-              text: message
-            }
+            { type: 'text', text: message }
           ];
-        } else if (event.message.text.includes("SAO ค้นหา")) {
-          var searchQuery = event.message.text.split("SAO ค้นหา")[1].trim();
+        } else if (text.includes("SAO ค้นหา")) {
+          var searchQuery = text.split("SAO ค้นหา")[1].trim();
           var fileList = searchFilesByName(userFolder, searchQuery);
           var message = createSearchResultMessage(fileList, searchQuery);
           replyMessage = [
-            {
-              type: 'text',
-              text: message
-            }
+            { type: 'text', text: message }
           ];
         } else {
           switch (messageType) {
@@ -710,10 +653,7 @@ function doPost(e) {
             case 'video':
             case 'audio':
               replyMessage = [
-                { 
-                  type: 'text', 
-                  text: handleMediaMessage(event, userFolder)
-                }
+                { type: 'text', text: handleMediaMessage(event, userFolder) }
               ];
               break;
 
