@@ -1,2 +1,2 @@
-PropertiesService.getScriptProperties().setProperty('CHANNEL_TOKEN', 'pKHdfsCQj3VZKGdklq5Bqe6+hBFKTrN+hKhhUO6NkakBBEOtGMoTINddnwrHDfyTg/bMLohGqRW8/FXx/6oqKe5Pcq0y58fEBrBZQ+XbLD+Uc8SIt2O8NQXNWuz6i+SeSruD+eksffmXYzDYzcfJegdB04t89/1O/w1cDnyilFU=');
-PropertiesService.getScriptProperties().setProperty('GDRIVE_ROOT_FOLDER_ID', '1D9_WVyy2Qv9zsKwfK-j057mm1jYS95GN');
+PropertiesService.getScriptProperties().setProperty('CHANNEL_TOKEN', 'XXXXXXXXXXXXXXXXXXXXXXXXXXXX');
+PropertiesService.getScriptProperties().setProperty('GDRIVE_ROOT_FOLDER_ID', 'XXXXXXXXXXXXXXXXXXXXXXXXXXXX');
